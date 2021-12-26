@@ -10,13 +10,28 @@ class Game {
         this.playerY = 20
         this.playerW = 20
         this.playerH = 20
+        this.palyerDirection = "bottom"
+        this.ultiCount = 4
+
         this.mapFloor = 10
+        this.pieceW = 20
+        this.pieceH = 20
 
         this.map = []
+        this.createMap()
+        this.map[1][1] = 0
 
-        for (var i = 0; i < 25; i++) {
+        self.timer = setInterval(this.loop.bind(this), 1000 / 30)
+    }
+
+    updateUltiTime() {
+        this.ultiTime += 1
+    }
+
+    createMap() {
+        for (var i = 0; i < this.canvas.height / this.pieceH; i++) {
             this.map[i] = []
-            for (var j = 0; j < 25; j++) {
+            for (var j = 0; j < this.canvas.width / this.pieceW; j++) {
                 let rdn = Math.floor(Math.random() * this.mapFloor)
                 if (rdn == 0) {
                     this.map[i][j] = 1
@@ -25,10 +40,6 @@ class Game {
                 }
             }
         }
-
-        this.map[1][1] = 0
-
-        self.timer = setInterval(this.loop.bind(this), 1000 / 30)
     }
 
     reset() {
@@ -37,6 +48,10 @@ class Game {
     }
 
     update() {
+        this.limitCheck()
+    }
+
+    limitCheck() {
         if (this.playerX >= this.canvas.width) {
             this.playerX = 0
         } else if (this.playerX <= -this.playerW) {
@@ -59,7 +74,7 @@ class Game {
                 let piece = this.map[i][j]
                 if (piece == 1) {
                     this.context.fillStyle = "white"
-                    this.context.fillRect(j * 20, i * 20, 20, 20)
+                    this.context.fillRect(j * this.pieceW, i * this.pieceH, this.pieceW, this.pieceH)
                 }
             }
         }
@@ -74,43 +89,93 @@ class Game {
     }
 
     OnKeyPress(e) {
+        if (e.keyCode == 37 || e.keyCode == 65) { // left
+            this.playerLeft()
+        } else if (e.keyCode == 38 || e.keyCode == 87) { // top
+            this.playerTop()
+        } else if (e.keyCode == 39 || e.keyCode == 68) { // right
+            this.playerRight()
+        } else if (e.keyCode == 40 || e.keyCode == 83) { // bottom
+            this.playerBottom()
+        } else if (e.keyCode == 75) {
+            this.playerUlti()
+        }
+    }
+
+    playerLeft(blockCount = 1) {
         let piece = 0
-        if (e.keyCode == 37) { // left
-            if (this.playerX / 20 - 1 == -1) {
-                piece = this.map[this.playerY / 20][24]
-            } else {
-                piece = this.map[this.playerY / 20][this.playerX / 20 - 1]
-            }
-            if (piece != 1) {
-                this.playerX -= this.playerW
-            }
-        } else if (e.keyCode == 38) { // top
-            if (this.playerY / 20 - 1 == -1) {
-                piece = this.map[24][this.playerX / 20]
-            } else {
-                piece = this.map[this.playerY / 20 - 1][this.playerX / 20]
-            }
-            if (piece != 1) {
-                this.playerY -= this.playerH
-            }
-        } else if (e.keyCode == 39) { // right
-            if (this.playerX / 20 + 1 == 25) {
-                piece = this.map[this.playerY / 20][0]
-            } else {
-                piece = this.map[this.playerY / 20][this.playerX / 20 + 1]
-            }
-            if (piece != 1) {
-                this.playerX += this.playerW
-            }
-        } else if (e.keyCode == 40) { // bottom
-            if (this.playerY / 20 + 1 == 25) {
-                piece = this.map[0][this.playerX / 20]
-            } else {
-                piece = this.map[this.playerY / 20 + 1][this.playerX / 20]
-            }
-            if (piece != 1) {
-                this.playerY += this.playerH
-            }
+
+        if (this.playerX / this.pieceW - blockCount < 0) {
+            piece = this.map[this.playerY / this.pieceH][this.canvas.width / this.pieceW - 1]
+        } else {
+            piece = this.map[this.playerY / this.pieceH][this.playerX / this.pieceW - blockCount]
+        }
+        if (piece != 1) {
+            this.playerX -= this.playerW * blockCount
+        }
+
+        this.palyerDirection = "left"
+    }
+
+    playerTop(blockCount = 1) {
+        let piece = 0
+
+        if (this.playerY / this.pieceH - blockCount < 0) {
+            piece = this.map[this.canvas.height / this.pieceH - 1][this.playerX / this.pieceW]
+        } else {
+            piece = this.map[this.playerY / this.pieceH - blockCount][this.playerX / this.pieceW]
+        }
+        if (piece != 1) {
+            this.playerY -= this.playerH * blockCount
+        }
+
+        this.palyerDirection = "top"
+    }
+
+    playerRight(blockCount = 1) {
+        let piece = 0
+
+        if (this.playerX / this.pieceW + blockCount >= this.canvas.width / this.pieceW) {
+            piece = this.map[this.playerY / this.pieceH][0]
+        } else {
+            piece = this.map[this.playerY / this.pieceH][this.playerX / this.pieceW + blockCount]
+        }
+        if (piece != 1) {
+            this.playerX += this.playerW * blockCount
+        }
+
+        this.palyerDirection = "right"
+    }
+
+    playerBottom(blockCount = 1) {
+        let piece = 0
+
+        if (this.playerY / this.pieceH + blockCount >= this.canvas.height / this.pieceH) {
+            piece = this.map[0][this.playerX / this.pieceW]
+        } else {
+            piece = this.map[this.playerY / this.pieceH + blockCount][this.playerX / this.pieceW]
+        }
+        if (piece != 1) {
+            this.playerY += this.playerH * blockCount
+        }
+
+        this.palyerDirection = "bottom"
+    }
+
+    playerUlti() {
+        switch (this.palyerDirection) {
+            case "left":
+                this.playerLeft(this.ultiCount)
+                break
+            case "top":
+                this.playerTop(this.ultiCount)
+                break
+            case "right":
+                this.playerRight(this.ultiCount)
+                break
+            case "bottom":
+                this.playerBottom(this.ultiCount)
+                break
         }
     }
 }
