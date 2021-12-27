@@ -37,6 +37,7 @@ class Game {
 
     updateUltiRight() {
         this.ultiRight = true
+        document.getElementById("ulti").style.background = "yellow"
     }
 
     createMap() {
@@ -191,6 +192,7 @@ class Game {
                     break
             }
             this.ultiRight = false
+            document.getElementById("ulti").style.background = "white"
         }
     }
 }
