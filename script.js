@@ -3,6 +3,11 @@ class Game {
         this.canvas = document.getElementById("canvas")
         this.context = this.canvas.getContext("2d")
         document.addEventListener("keydown", this.OnKeyPress.bind(this))
+        document.getElementById("top").addEventListener("click", this.playerTop.bind(this, 1))
+        document.getElementById("left").addEventListener("click", this.playerLeft.bind(this, 1))
+        document.getElementById("ulti").addEventListener("click", this.playerUlti.bind(this, 1))
+        document.getElementById("right").addEventListener("click", this.playerRight.bind(this, 1))
+        document.getElementById("bottom").addEventListener("click", this.playerBottom.bind(this, 1))
     }
 
     init() {
@@ -50,6 +55,7 @@ class Game {
 
     reset() {
         clearInterval(self.timer)
+        clearInterval(self.ultiTimer)
         this.init()
     }
 
