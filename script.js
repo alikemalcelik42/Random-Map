@@ -11,7 +11,10 @@ class Game {
         this.playerW = 20
         this.playerH = 20
         this.palyerDirection = "bottom"
-        this.ultiCount = 4
+
+        this.ultiCount = 2
+        this.ultiRight = true
+        this.ultiDirection = 5
 
         this.mapFloor = 10
         this.pieceW = 20
@@ -21,11 +24,14 @@ class Game {
         this.createMap()
         this.map[1][1] = 0
 
-        self.timer = setInterval(this.loop.bind(this), 1000 / 30)
+        this.fps = 50
+
+        self.timer = setInterval(this.loop.bind(this), 1000 / this.fps)
+        self.ultiTimer = setInterval(this.updateUltiRight.bind(this), 1000 * this.ultiDirection)
     }
 
-    updateUltiTime() {
-        this.ultiTime += 1
+    updateUltiRight() {
+        this.ultiRight = true
     }
 
     createMap() {
@@ -163,19 +169,22 @@ class Game {
     }
 
     playerUlti() {
-        switch (this.palyerDirection) {
-            case "left":
-                this.playerLeft(this.ultiCount)
-                break
-            case "top":
-                this.playerTop(this.ultiCount)
-                break
-            case "right":
-                this.playerRight(this.ultiCount)
-                break
-            case "bottom":
-                this.playerBottom(this.ultiCount)
-                break
+        if (this.ultiRight) {
+            switch (this.palyerDirection) {
+                case "left":
+                    this.playerLeft(this.ultiCount)
+                    break
+                case "top":
+                    this.playerTop(this.ultiCount)
+                    break
+                case "right":
+                    this.playerRight(this.ultiCount)
+                    break
+                case "bottom":
+                    this.playerBottom(this.ultiCount)
+                    break
+            }
+            this.ultiRight = false
         }
     }
 }
